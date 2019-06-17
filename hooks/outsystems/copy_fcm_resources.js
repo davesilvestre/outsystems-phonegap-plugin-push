@@ -276,6 +276,13 @@ module.exports = function (ctx) {
     });
     return zipFile;
   }
+  
+   function isCordovaAbove(context, version) {
+  var cordovaVersion = context.opts.cordova.version;
+  console.log(cordovaVersion);
+  var sp = cordovaVersion.split('.');
+  return parseInt(sp[0]) >= version;
+  }
 
   /**
    * Attempts to open and extract a zip file
@@ -310,10 +317,16 @@ module.exports = function (ctx) {
     } else if (platform === "ios") {
       wwwfolder = "www";
     }
+     var cordovaAbove7 = isCordovaAbove(context, 7);
+     
 
     if (!wwwfolder) {
       return;
     }
+    
+    if (cordovaAbove7) {
+         return path.join(projectRoot, "www", RESOURCES_TARGET_FOLDER);
+      }
     return path.join(platformPath, wwwfolder, RESOURCES_TARGET_FOLDER);
 
   }
