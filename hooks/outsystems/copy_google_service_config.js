@@ -33,7 +33,16 @@ module.exports = function (ctx) {
         return;
     }
     var wwwpath = path.join(platformPath, wwwfolder);
+  
+  
     var configPath = path.join(wwwpath, "google-services");
+  
+    function isCordovaAbove(context, version) {
+    var cordovaVersion = context.opts.cordova.version;
+    console.log(cordovaVersion);
+    var sp = cordovaVersion.split('.');
+    return parseInt(sp[0]) >= version;
+  }
 
     fs.readdir(configPath, function(err, files){
 
@@ -62,6 +71,30 @@ module.exports = function (ctx) {
         .on("close", function(){
             deferral.resolve();
         });
+      
+      var cordovaVersion = ctx.opts.cordova.version;
+      console.log(cordovaVersion);
+      var sp = cordovaVersion.split('.');
+      var cordovaAbove7 = parseInt(sp[0]) >= 7;
+      
+      if(cordovaAbove7)
+      {
+       var destPath = path.join(ctx.opts.projectRoot, "platforms", platform, "app");
+      if (fs.existsSync(destPath)) {
+        var destFilePath = path.join(destPath, filename);
+        fs.createReadStream(originalFile).pipe(fs.createWriteStream(destFilePath))
+          .on("close", function (err) {
+          deferral.resolve();
+          })
+          .on("error", function (err) {
+          console.log(err);
+          deferral.reject();
+          });       
+        }
+      }
+
+      
+      
     });
     return deferral.promise;
   };
