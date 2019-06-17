@@ -82,6 +82,14 @@ module.exports = function (ctx) {
     zip.extractAllTo(targetDir, true);
     return targetDir;
   }
+  
+  /* temp workaround to work with MABS 5*/
+  function isCordovaAbove(context, version) {
+  var cordovaVersion = context.opts.cordova.version;
+  console.log(cordovaVersion);
+  var sp = cordovaVersion.split('.');
+  return parseInt(sp[0]) >= version;
+  }
 
 
   function _handleZipFile(context) {
@@ -92,7 +100,8 @@ module.exports = function (ctx) {
     var platformPath = path.join(projectRoot, "platforms", platform);
     var wwwfolder;
     if (platform === "android") {
-      wwwfolder = "assets/www";
+       wwwfolder = "assets/www";
+    
     } else if (platform === "ios") {
       wwwfolder = "www";
     }
@@ -101,8 +110,16 @@ module.exports = function (ctx) {
       return;
     }
     var wwwpath = path.join(platformPath, wwwfolder);
-    var configPath = path.join(wwwpath, "google-services");
+ 
 
+    var cordovaAbove7 = isCordovaAbove(context, 7);
+     if (cordovaAbove7) {
+          wwwpath = path.join(context.opts.projectRoot, "www");
+      }
+    
+     var configPath = path.join(wwwpath, "google-services");
+    
+    
     var prefZipFilename = "google-services";
     // unzip the resources file, if any
     var zipFile = getZipFile(configPath, prefZipFilename);
